@@ -6,7 +6,7 @@
         <item>Top</item>
         <item>Bottom</item>
     </string-array>
-    <string name="app_name">JARVIS</string>
+    <string name="app_name">BGX JARVIS</string>
     <string name="jarvis_title">JARVIS</string>
 
     <string name="state_idle">IDLE</string>

@@ -23,15 +23,15 @@ class PrivacyShieldActivity : AppCompatActivity() {
         }
 
         binding.btnJoinOfficialTelegram.setOnClickListener {
-            openUrl("https://t.me/+sYana61LvHdmZmE1")
+            openUrl("https://t.me/+yRz0HVoA9HU0YTE1")
         }
 
         binding.btnJoinTelegram.setOnClickListener {
-            openUrl("https://t.me/+DmyO7NFUia01YTVl")
+            openUrl("https://t.me/+yRz0HVoA9HU0YTE1")
         }
 
         binding.btnJoinInstagram.setOnClickListener {
-            openUrl("https://www.instagram.com/techgptx.ai")
+            openUrl("https://www.instagram.com/bijugaming26")
         }
 
         binding.btnJoinYoutube.setOnClickListener {

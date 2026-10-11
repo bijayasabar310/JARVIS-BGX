@@ -228,7 +228,7 @@ class UiGroundingEngine {
             (cleanStrippedQuery.isNotEmpty() && (cleanText == cleanStrippedQuery || cleanDesc == cleanStrippedQuery))
         }?.let { return it }
 
-        // Case 3: Normalized Substring Containment (e.g. "techgpt" inside "techgptx")
+        // Case 3: Normalized Substring Containment (partial/normalized text match)
         elements.firstOrNull {
             val text = it.text.lowercase(Locale.ROOT)
             val desc = it.contentDescription.lowercase(Locale.ROOT)

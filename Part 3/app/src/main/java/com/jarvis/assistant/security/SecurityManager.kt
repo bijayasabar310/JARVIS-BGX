@@ -11,9 +11,9 @@ import kotlin.system.exitProcess
 /**
  * ╔══════════════════════════════════════════════════════════════╗
  * ║           JARVIS ASSISTANT — SECURITY MODULE                 ║
- * ║   Original Developer  : Tech GPTx                           ║
- * ║   Copyright © 2026    : Tech GPTx. All Rights Reserved.     ║
- * ║   GitHub              : https://github.com/techgptx/Playlist ║
+ * ║   Rebranded by         : BGX Team (Biju)                           ║
+ * ║   Copyright © 2026     : BGX Team. All Rights Reserved.     ║
+ * ║   GitHub              : https://github.com/bijayasabar310/JARVIS-BGX ║
  * ║   Content Creators    : Must give 100% shoutout to Tech GPTx ║
  * ╚══════════════════════════════════════════════════════════════╝
  *
@@ -28,10 +28,10 @@ import kotlin.system.exitProcess
 object SecurityManager {
 
     // ── Developer Identity ────────────────────────────────────────
-    const val DEVELOPER_NAME    = "Tech GPTx"
-    const val COPYRIGHT_NOTICE  = "Copyright © 2026 Tech GPTx. All Rights Reserved."
-    const val GITHUB_REPO       = "https://github.com/techgptx/Playlist"
-    const val LICENSE_NAME      = "TAMCL v1.0 — Content creators MUST credit Tech GPTx"
+    const val DEVELOPER_NAME    = "BGX Team"
+    const val COPYRIGHT_NOTICE  = "Copyright © 2026 BGX Team. All Rights Reserved."
+    const val GITHUB_REPO       = "https://github.com/bijayasabar310/JARVIS-BGX"
+    const val LICENSE_NAME      = "TAMCL v1.0 — Content creators MUST credit Tech GPTx (original author)"
 
     // ── Anti-Clone: expected package name ────────────────────────
     private const val EXPECTED_PACKAGE = "com.jarvis.assistant"

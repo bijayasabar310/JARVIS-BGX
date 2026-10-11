@@ -758,7 +758,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@techgptx.ai"
+                            android:text="@bijugaming26"
                             android:textColor="?attr/themeTextMuted"
                             android:textSize="12sp" />
                     </LinearLayout>

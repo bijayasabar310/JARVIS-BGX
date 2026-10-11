@@ -64,7 +64,7 @@ class SettingsFragment : Fragment() {
     }
 
     private fun loadUserData() {
-        val userName = preferences.userName.ifBlank { "Rehaan" }
+        val userName = preferences.userName.ifBlank { "Biju" }
         binding.tvProfileName.text = userName
         binding.tvProfileSubtitle.text = "JARVIS OPERATOR • PRIMARY USER"
 
@@ -192,11 +192,11 @@ class SettingsFragment : Fragment() {
 
         // Social Media Community Buttons
         binding.btnSocialTelegram.setOnClickListener {
-            openUrl("https://t.me/+sYana61LvHdmZmE1")
+            openUrl("https://t.me/+yRz0HVoA9HU0YTE1")
         }
 
         binding.btnSocialInstagram.setOnClickListener {
-            openUrl("https://www.instagram.com/techgptx.ai")
+            openUrl("https://www.instagram.com/bijugaming26")
         }
 
         binding.btnSocialYoutube.setOnClickListener {
@@ -204,7 +204,7 @@ class SettingsFragment : Fragment() {
         }
 
         binding.tvFooterCredit.setOnClickListener {
-            openUrl("https://t.me/+sYana61LvHdmZmE1")
+            openUrl("https://t.me/+yRz0HVoA9HU0YTE1")
         }
     }
 
@@ -242,7 +242,7 @@ class SettingsFragment : Fragment() {
 
     private fun showEditNameDialog() {
         val input = EditText(requireContext()).apply {
-            setText(preferences.userName.ifBlank { "Rehaan" })
+            setText(preferences.userName.ifBlank { "Biju" })
             setSelection(text.length)
         }
         MaterialAlertDialogBuilder(requireContext())

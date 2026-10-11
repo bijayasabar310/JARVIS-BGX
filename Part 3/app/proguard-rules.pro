@@ -21,7 +21,7 @@
 -keep class * extends androidx.room.RoomDatabase
 -keep class com.jarvis.assistant.data.memory.** { *; }
 
-# ── Tech GPTx Security Module — keep rules ───────────────────────────────────
+# ── BGX Team Security Module — keep rules (JARVIS by Tech GPTx) ───────────────────────────────────
 # Keep SecurityManager and DeveloperInfo visible at runtime (needed for checks)
 -keep class com.jarvis.assistant.security.SecurityManager { *; }
 -keep class com.jarvis.assistant.security.DeveloperInfo { *; }
