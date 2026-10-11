@@ -1,0 +1,52 @@
+name: Build BGX JARVIS APKs
+
+on:
+  workflow_dispatch:
+    inputs:
+      parts:
+        description: 'Which parts to build (space separated), e.g. "1 2 3" — leave empty for all 7'
+        required: false
+        default: ''
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Build Part ${{ matrix.part }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Make gradlew executable
+        working-directory: Part ${{ matrix.part }}
+        run: chmod +x ./gradlew
+
+      - name: Build debug APK
+        working-directory: Part ${{ matrix.part }}
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Show APK
+        working-directory: Part ${{ matrix.part }}
+        run: |
+          ls -lh app/build/outputs/apk/debug/ || true
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: BGX-JARVIS-Part-${{ matrix.part }}-debug
+          path: Part ${{ matrix.part }}/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
