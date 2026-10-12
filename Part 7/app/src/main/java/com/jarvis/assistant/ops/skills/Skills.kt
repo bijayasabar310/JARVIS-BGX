@@ -182,7 +182,7 @@ object VideoEditSkill : Skill {
             )
         }
 
-        val outDir = File(ctx.appContext.filesDir, "exports").apply { mkdirs() }
+        val outDir = File(baseDir(ctx.appContext), "exports").apply { mkdirs() }
         val output = File(outDir, "export-${System.currentTimeMillis()}.mp4")
         val logoPath = ctx.prefs.logoPath.trim().ifBlank { null }
 
@@ -208,7 +208,11 @@ object VideoEditSkill : Skill {
         )
     }
 
-    private fun defaultClipsDir(context: android.content.Context) = File(context.filesDir, "clips")
+    /** App-specific external dir (file-manager accessible) so the user can drop clips in. */
+    private fun baseDir(context: android.content.Context): File =
+        context.getExternalFilesDir(null) ?: context.filesDir
+
+    private fun defaultClipsDir(context: android.content.Context) = File(baseDir(context), "clips")
 
     private fun gatherClips(ctx: SkillContext): List<File> {
         val configured = ctx.prefs.clipsDir.trim()

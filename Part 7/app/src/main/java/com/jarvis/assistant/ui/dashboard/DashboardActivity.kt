@@ -13,6 +13,7 @@ import com.jarvis.assistant.ops.OpsTaskService
 import com.jarvis.assistant.ops.skills.SkillManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
 import java.time.ZonedDateTime
 
 /**
@@ -42,7 +43,8 @@ class DashboardActivity : AppCompatActivity() {
         switchEmergency.isChecked = prefs.emergencyStop
 
         fun refreshHeader() {
-            tvNext.text = when {
+            val clipsDir = File(applicationContext.getExternalFilesDir(null) ?: filesDir, "clips")
+            val scheduleLine = when {
                 !prefs.enabled -> "Scheduler: OFF"
                 prefs.emergencyStop -> "EMERGENCY STOP engaged — scheduler halted"
                 else -> {
@@ -52,6 +54,7 @@ class DashboardActivity : AppCompatActivity() {
                     else "Next run: ${next.first.display} IST on ${next.second.toLocalDate()}  •  slots: $slotList"
                 }
             }
+            tvNext.text = "$scheduleLine\nClips folder: ${clipsDir.absolutePath}"
             tvSkills.text = buildString {
                 appendLine("Skills (${SkillManager.all().size}):")
                 SkillManager.all().forEach { appendLine("• ${it.id.title} — ${it.description}") }
