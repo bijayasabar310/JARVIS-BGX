@@ -184,7 +184,7 @@ object VideoEditSkill : Skill {
 
         val outDir = File(baseDir(ctx.appContext), "exports").apply { mkdirs() }
         val output = File(outDir, "export-${System.currentTimeMillis()}.mp4")
-        val logoPath = ctx.prefs.logoPath.trim().ifBlank { null }
+        val logoPath = resolveLogo(ctx)
 
         val result = LocalVideoEditor.export(ctx.appContext, clips, output, logoPath)
         if (!result.ok) return SkillOutcome.failed(result.message)
@@ -211,6 +211,21 @@ object VideoEditSkill : Skill {
     /** App-specific external dir (file-manager accessible) so the user can drop clips in. */
     private fun baseDir(context: android.content.Context): File =
         context.getExternalFilesDir(null) ?: context.filesDir
+
+    /**
+     * Logo to burn in. Uses the configured path if set, otherwise auto-detects a
+     * logo.png/jpg/jpeg/webp placed next to the clips folder.
+     */
+    private fun resolveLogo(ctx: SkillContext): String? {
+        val configured = ctx.prefs.logoPath.trim()
+        if (configured.isNotBlank() && File(configured).exists()) return configured
+        val base = baseDir(ctx.appContext)
+        for (name in listOf("logo.png", "logo.jpg", "logo.jpeg", "logo.webp")) {
+            val f = File(base, name)
+            if (f.exists()) return f.absolutePath
+        }
+        return null
+    }
 
     private fun defaultClipsDir(context: android.content.Context) = File(baseDir(context), "clips")
 
