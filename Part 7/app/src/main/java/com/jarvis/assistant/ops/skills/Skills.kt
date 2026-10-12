@@ -70,47 +70,64 @@ object CaptionHashtagSkill : Skill {
         .readTimeout(60, TimeUnit.SECONDS)
         .build()
 
+    /**
+     * The app's default model is a Live-API model that only supports bidiGenerateContent over
+     * WebSocket, so it cannot serve a plain REST generateContent call. Try generateContent-capable
+     * Flash models instead, in order, until one succeeds.
+     */
+    private val candidateModels = listOf(
+        "models/gemini-2.5-flash",
+        "models/gemini-2.0-flash",
+        "models/gemini-flash-latest",
+        "models/gemini-1.5-flash"
+    )
+
     override suspend fun execute(ctx: SkillContext): SkillOutcome {
-        val appPrefs = JarvisApp.instance.preferences
-        val key = appPrefs.apiKey
+        val key = JarvisApp.instance.preferences.apiKey
         if (key.isBlank()) {
             return SkillOutcome.blocked("No Gemini API key configured (Settings → API connection).")
         }
-        val model = appPrefs.aiModel
+
+        val preferred = ctx.prefs.captionModel.trim()
+        val models = ((if (preferred.isNotBlank()) listOf(preferred) else emptyList()) + candidateModels).distinct()
+
         val prompt = "Write one short, engaging Instagram caption (max 2 lines) and 12 relevant hashtags " +
                 "for an AI-assistant / JARVIS themed short video. Reply as plain text: the caption, then a " +
                 "line 'HASHTAGS:' followed by the hashtags separated by spaces."
 
         return withContext(Dispatchers.IO) {
-            try {
-                val body = """{"contents":[{"parts":[{"text":${JsonPrimitive(prompt)}}]}]}"""
-                val request = Request.Builder()
-                    .url("https://generativelanguage.googleapis.com/v1beta/$model:generateContent?key=$key")
-                    .post(body.toRequestBody("application/json".toMediaType()))
-                    .build()
-                client.newCall(request).execute().use { resp ->
-                    val text = resp.body?.string().orEmpty()
-                    if (!resp.isSuccessful) {
-                        SkillOutcome.failed("Gemini HTTP ${resp.code}: ${text.take(200)}")
-                    } else {
-                        val parsed = JsonParser.parseString(text).asJsonObject
-                        val candidate = parsed.getAsJsonArray("candidates")?.firstOrNull()?.asJsonObject
-                        val parts = candidate?.getAsJsonObject("content")?.getAsJsonArray("parts")
-                        val out = parts?.firstOrNull()?.asJsonObject?.get("text")?.asString
-                        if (out.isNullOrBlank()) {
-                            SkillOutcome.failed("Gemini returned an empty response.")
+            var lastError = "no model attempted"
+            for (model in models) {
+                try {
+                    val body = """{"contents":[{"parts":[{"text":${JsonPrimitive(prompt)}}]}]}"""
+                    val request = Request.Builder()
+                        .url("https://generativelanguage.googleapis.com/v1beta/$model:generateContent?key=$key")
+                        .post(body.toRequestBody("application/json".toMediaType()))
+                        .build()
+                    client.newCall(request).execute().use { resp ->
+                        val text = resp.body?.string().orEmpty()
+                        if (resp.isSuccessful) {
+                            val parsed = JsonParser.parseString(text).asJsonObject
+                            val candidate = parsed.getAsJsonArray("candidates")?.firstOrNull()?.asJsonObject
+                            val parts = candidate?.getAsJsonObject("content")?.getAsJsonArray("parts")
+                            val out = parts?.firstOrNull()?.asJsonObject?.get("text")?.asString
+                            if (!out.isNullOrBlank()) {
+                                return@withContext SkillOutcome.success(
+                                    "Caption + hashtags generated with $model.",
+                                    mapOf("caption" to out, "model" to model),
+                                    verified = "Gemini returned text via generateContent ($model)"
+                                )
+                            }
+                            lastError = "empty response from $model"
                         } else {
-                            SkillOutcome.success(
-                                "Caption + hashtags generated.",
-                                mapOf("caption" to out),
-                                verified = "Gemini responded with text"
-                            )
+                            lastError = "HTTP ${resp.code} from $model: ${text.take(160)}"
                         }
                     }
+                } catch (e: Exception) {
+                    lastError = "error with $model: ${e.message}"
                 }
-            } catch (e: Exception) {
-                SkillOutcome.failed("Caption generation error: ${e.message}")
             }
+            SkillOutcome.failed("Caption generation failed for all candidate models. Last error: $lastError")
         }
     }
 }

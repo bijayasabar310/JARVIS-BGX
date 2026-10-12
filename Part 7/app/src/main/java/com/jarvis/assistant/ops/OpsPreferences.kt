@@ -49,6 +49,14 @@ class OpsPreferences(context: Context) {
         get() = prefs.getBoolean(K_APPROVAL, true)
         set(v) = prefs.edit().putBoolean(K_APPROVAL, v).apply()
 
+    /**
+     * Gemini model id used for the caption skill. Blank = auto-select a generateContent-capable
+     * model (the app's voice model is Live-API-only and cannot be used here).
+     */
+    var captionModel: String
+        get() = prefs.getString(K_CAPTION_MODEL, "") ?: ""
+        set(v) = prefs.edit().putString(K_CAPTION_MODEL, v.trim()).apply()
+
     fun slots(): List<Slot> = parseSlots(slotsRaw)
 
     companion object {
@@ -60,6 +68,7 @@ class OpsPreferences(context: Context) {
         private const val K_RETRIES = "ops_max_retries"
         private const val K_LOGO = "ops_logo_path"
         private const val K_APPROVAL = "ops_require_account_approval"
+        private const val K_CAPTION_MODEL = "ops_caption_model"
 
         /** Default daily posting slots in IST. */
         const val DEFAULT_SLOTS = "08:30,13:00,19:00"
