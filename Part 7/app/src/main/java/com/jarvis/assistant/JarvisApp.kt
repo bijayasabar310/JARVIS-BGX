@@ -14,6 +14,11 @@ import com.jarvis.assistant.data.memory.MemoryRepository
 import com.jarvis.assistant.data.preferences.AppPreferences
 import com.jarvis.assistant.data.preferences.YouTubePreferences
 import com.jarvis.assistant.data.repository.ChatRepository
+import com.jarvis.assistant.ops.OpsPreferences
+import com.jarvis.assistant.ops.OpsRepository
+import com.jarvis.assistant.ops.OpsScheduler
+import com.jarvis.assistant.ops.db.OpsDatabase
+import com.jarvis.assistant.ops.skills.SkillManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,6 +43,12 @@ class JarvisApp : Application() {
         private set
 
     lateinit var memoryManager: MemoryManager
+        private set
+
+    lateinit var opsPreferences: OpsPreferences
+        private set
+
+    lateinit var opsRepository: OpsRepository
         private set
 
     lateinit var youTubePreferences: YouTubePreferences
@@ -69,6 +80,12 @@ class JarvisApp : Application() {
         memoryDatabase = MemoryDatabase.getInstance(this)
         memoryRepository = MemoryRepository(memoryDatabase.memoryDao())
         memoryManager = MemoryManager(memoryRepository, preferences, chatRepository, appScope)
+
+        // Autonomous Ops subsystem (persistent scheduler + modular skills + local logs)
+        opsPreferences = OpsPreferences(this)
+        opsRepository = OpsRepository(OpsDatabase.getInstance(this).opsDao())
+        SkillManager.registerDefaults()
+        OpsScheduler.reschedule(this)
 
         // Automation Systems
         youTubePreferences = YouTubePreferences(this)
