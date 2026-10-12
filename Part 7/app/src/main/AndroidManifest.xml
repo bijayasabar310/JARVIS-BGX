@@ -124,16 +124,11 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <!-- Autonomous Ops: dashboard -->
+        <!-- Autonomous Ops: dashboard (opened from Settings → Autonomous Ops) -->
         <activity
             android:name=".ui.dashboard.DashboardActivity"
-            android:exported="true"
-            android:label="JARVIS Ops">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false"
+            android:label="JARVIS Ops" />
 
         <!-- Autonomous Ops: scheduled task runner -->
         <service

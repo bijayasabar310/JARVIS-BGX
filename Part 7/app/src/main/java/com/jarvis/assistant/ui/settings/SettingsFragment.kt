@@ -190,6 +190,12 @@ class SettingsFragment : Fragment() {
                 .show()
         }
 
+        binding.rowAutonomousOps.setOnClickListener {
+            startActivity(
+                Intent(requireContext(), com.jarvis.assistant.ui.dashboard.DashboardActivity::class.java)
+            )
+        }
+
         // Social Media Community Buttons
         binding.btnSocialTelegram.setOnClickListener {
             openUrl("https://t.me/+yRz0HVoA9HU0YTE1")
