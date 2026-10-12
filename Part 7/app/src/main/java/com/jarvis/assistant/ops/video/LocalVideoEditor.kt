@@ -14,6 +14,7 @@ import androidx.media3.effect.OverlayEffect
 import androidx.media3.effect.TextureOverlay
 import androidx.media3.transformer.Composition
 import androidx.media3.transformer.EditedMediaItem
+import androidx.media3.transformer.EditedMediaItemSequence
 import androidx.media3.transformer.Effects
 import androidx.media3.transformer.ExportException
 import androidx.media3.transformer.ExportResult
@@ -101,7 +102,8 @@ object LocalVideoEditor {
             builder.build()
         }
 
-        val composition = Composition.Builder(ImmutableList.copyOf(items)).build()
+        val sequence = EditedMediaItemSequence(items)
+        val composition = Composition.Builder(listOf(sequence)).build()
 
         suspendCancellableCoroutine { cont ->
             val listener = object : Transformer.Listener {
