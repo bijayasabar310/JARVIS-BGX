@@ -9,12 +9,14 @@ import com.jarvis.assistant.ops.OpsRepository
 import com.jarvis.assistant.ops.ReportGenerator
 import com.jarvis.assistant.ops.SkillId
 import com.jarvis.assistant.ops.SkillOutcome
+import com.jarvis.assistant.ops.video.LocalVideoEditor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 /** Everything a skill needs for one execution attempt. */
@@ -166,17 +168,58 @@ object FlowVideoSkill : Skill {
         )
 }
 
-/** Planned: local clip concatenation, logo overlay, music + original-audio preservation, export. */
+/** Combines local clips, burns the authorized logo, preserves original audio, exports an MP4. */
 object VideoEditSkill : Skill {
     override val id = SkillId.VIDEO_EDIT
     override val description = "Combine clips locally, add the authorized logo, keep original audio, export."
 
-    override suspend fun execute(ctx: SkillContext): SkillOutcome =
-        SkillOutcome.notImplemented(
-            "Not implemented yet. Planned: combine the two clips with MediaMuxer, overlay the user's " +
-                    "authorized logo, mix permitted music while preserving original audio where present, and " +
-                    "export a local MP4. A logo asset path is required (OpsPreferences.logoPath)."
+    override suspend fun execute(ctx: SkillContext): SkillOutcome {
+        val clips = gatherClips(ctx)
+        if (clips.isEmpty()) {
+            return SkillOutcome.blocked(
+                "No input clips found. Put video files in ${defaultClipsDir(ctx.appContext).absolutePath} " +
+                        "(or generate them with Flow), then run again."
+            )
+        }
+
+        val outDir = File(ctx.appContext.filesDir, "exports").apply { mkdirs() }
+        val output = File(outDir, "export-${System.currentTimeMillis()}.mp4")
+        val logoPath = ctx.prefs.logoPath.trim().ifBlank { null }
+
+        val result = LocalVideoEditor.export(ctx.appContext, clips, output, logoPath)
+        if (!result.ok) return SkillOutcome.failed(result.message)
+
+        val durationMs = LocalVideoEditor.probeDurationMs(output)
+        val (w, h) = LocalVideoEditor.probeWidthHeight(output)
+        if (durationMs <= 0 || output.length() <= 0) {
+            return SkillOutcome.failed("Export produced an unreadable file (${output.name}).")
+        }
+
+        val musicNote = if (ctx.prefs.musicPath.isNotBlank()) " (music mixing not applied yet)" else ""
+        return SkillOutcome.success(
+            "Combined ${clips.size} clip(s)${if (logoPath != null) " with logo" else ""}; " +
+                    "exported ${output.name} (${durationMs / 1000}s, ${w}x$h)$musicNote.",
+            mapOf(
+                "output" to output.absolutePath,
+                "clips" to clips.size.toString(),
+                "logo" to (logoPath ?: "none")
+            ),
+            verified = "Output verified on-device: ${durationMs}ms, ${w}x$h, ${output.length()} bytes"
         )
+    }
+
+    private fun defaultClipsDir(context: android.content.Context) = File(context.filesDir, "clips")
+
+    private fun gatherClips(ctx: SkillContext): List<File> {
+        val configured = ctx.prefs.clipsDir.trim()
+        val dir = if (configured.isNotBlank()) File(configured) else defaultClipsDir(ctx.appContext)
+        if (!dir.exists()) return emptyList()
+        val exts = setOf("mp4", "mov", "mkv", "webm", "m4v", "3gp")
+        return (dir.listFiles() ?: emptyArray())
+            .filter { it.isFile && it.extension.lowercase() in exts && it.length() > 0 }
+            .sortedBy { it.name }
+            .take(4)
+    }
 }
 
 /** Planned: publish via the existing logged-in Instagram UI, with approval + duplicate-post guard. */

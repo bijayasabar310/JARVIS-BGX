@@ -113,6 +113,11 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.webkit:webkit:1.12.0")
+
+    // Local video assembly (combine clips, logo overlay, export)
+    implementation("androidx.media3:media3-transformer:1.4.1")
+    implementation("androidx.media3:media3-effect:1.4.1")
+    implementation("androidx.media3:media3-common:1.4.1")
     implementation("net.java.dev.jna:jna:5.13.0@aar")
     implementation("com.alphacephei:vosk-android:0.3.75@aar")
 

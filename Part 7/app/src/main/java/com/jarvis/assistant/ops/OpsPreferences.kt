@@ -44,6 +44,16 @@ class OpsPreferences(context: Context) {
         get() = prefs.getString(K_LOGO, "") ?: ""
         set(v) = prefs.edit().putString(K_LOGO, v).apply()
 
+    /** Folder to read input video clips from. Blank = <filesDir>/clips. */
+    var clipsDir: String
+        get() = prefs.getString(K_CLIPS_DIR, "") ?: ""
+        set(v) = prefs.edit().putString(K_CLIPS_DIR, v.trim()).apply()
+
+    /** Optional permitted music track (reserved; mixing is not applied yet). */
+    var musicPath: String
+        get() = prefs.getString(K_MUSIC, "") ?: ""
+        set(v) = prefs.edit().putString(K_MUSIC, v.trim()).apply()
+
     /** Approval required before publishing to an account that is not confidently identified. */
     var requireAccountApproval: Boolean
         get() = prefs.getBoolean(K_APPROVAL, true)
@@ -67,6 +77,8 @@ class OpsPreferences(context: Context) {
         private const val K_FOLLOWUP = "ops_followup_minutes"
         private const val K_RETRIES = "ops_max_retries"
         private const val K_LOGO = "ops_logo_path"
+        private const val K_CLIPS_DIR = "ops_clips_dir"
+        private const val K_MUSIC = "ops_music_path"
         private const val K_APPROVAL = "ops_require_account_approval"
         private const val K_CAPTION_MODEL = "ops_caption_model"
 
